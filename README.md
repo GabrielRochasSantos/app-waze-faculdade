@@ -1,15 +1,43 @@
-Objetivo:
-Criar um sistema estilo Waze para simular catástrofes na cidade.
-Mostrar dados do banco do professor no aplicativo.
-Permitir que a equipe desenvolva e teste simultaneamente.
-------------------------------------------------------------------------
+2 - Objetivo 
 
-Tecnologias:
-Frontend: HTML, CSS, JavaScript (Visual Studio Code)
-Backend: Java (IntelliJ IDEA)
-Banco de dados: MySQL (Workbench, banco do professor)
-Controle de versão: Git/GitHub
-------------------------------------------------------------------------
+Estrutura completa do sistema
+1️⃣ Telas / Frontend
+1. Tela de Registro (Signup)
+Objetivo: permitir que novos usuários se registrem.
+Campos:
+Nome
+Email
+Senha
+Botão: Registrar
+Mensagem: “Usuário registrado com sucesso” ou erros.
+Ação: envia dados para o endpoint /api/signup do backend.
+Após registro bem-sucedido: redireciona para tela de login.
+------------------------------------------------------------------------------------------------
+
+2. Tela de Login (Signin)
+Objetivo: permitir acesso de usuários existentes.
+Campos:
+Email
+Senha
+Botão: Entrar
+Mensagem: “Login realizado” ou “Usuário/senha incorretos”.
+Ação: envia dados para o endpoint /api/login.
+Após login bem-sucedido: redireciona para tela do mapa.
+-------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 git add .
 git commit -m "Atualiza README.md e outras mudanças"
