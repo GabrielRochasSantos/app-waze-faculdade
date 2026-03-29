@@ -1,5 +1,4 @@
-2 - Objetivo 
-
+1.
 Estrutura completa do sistema
 1️⃣ Telas / Frontend
 1. Tela de Registro (Signup)
