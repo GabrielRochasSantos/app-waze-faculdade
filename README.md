@@ -11,21 +11,6 @@ Banco de dados: MySQL (Workbench, banco do professor)
 Controle de versão: Git/GitHub
 ------------------------------------------------------------------------
 
-
-│
-├── README.md
-├── frontend/
-│   ├── index.html
-│   ├── script.js
-│   └── styles.css
-│
-├── backend/
-│   └── javabackend/
-│       ├── src/
-│       │   └── Main.java
-│       ├── .idea/
-│       └── .gitignore
-│
-└── db/
-    └── waze_clone.sql   # script opcional para testes locais
-
+git add .
+git commit -m "Atualiza README.md e outras mudanças"
+git push origin main
