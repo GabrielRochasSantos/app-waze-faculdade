@@ -1,0 +1,1 @@
+1 passo é todos esta sabendo como usar o git e fazer updat das atualizaçao do projeto, se conectar certinho.
