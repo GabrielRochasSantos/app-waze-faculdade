@@ -1,0 +1,13 @@
+com\wazeclone\controller\AuthController.class
+com\wazeclone\service\AuthService.class
+com\wazeclone\model\Route.class
+com\wazeclone\controller\ReportController.class
+com\wazeclone\repository\ReportRepository.class
+com\wazeclone\model\Report.class
+com\wazeclone\repository\RouteRepository.class
+com\wazeclone\repository\UserRepository.class
+com\wazeclone\controller\RouteController.class
+com\wazeclone\service\RouteService.class
+com\wazeclone\model\User.class
+com\wazeclone\WazeBackendApplication.class
+com\wazeclone\config\SecurityConfig.class

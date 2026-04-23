@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Localização da Italo - Maps</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="dark-theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        #map { height: 100vh; width: 100%; }
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: 320px; height: 100vh;
+            background: rgba(15,15,15,0.98); backdrop-filter: blur(20px);
+            transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; padding: 25px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-toggle {
+            position: fixed; left: 20px; top: 20px; z-index: 1001; background: #4a90e2;
+            color: white; border: none; border-radius: 50%; width: 55px; height: 55px; cursor: pointer;
+        }
+        .user-info { text-align: center; margin-bottom: 30px; }
+        .profile-pic { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #4a90e2; object-fit: cover; }
+        .report-btn {
+            width: 100%; margin-bottom: 15px; background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white; border: none; border-radius: 12px; padding: 18px; font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+        .reports-list { max-height: 50vh; overflow-y: auto; }
+        .report-item { background: rgba(50,50,50,0.8); margin-bottom: 10px; padding: 15px; border-radius: 12px; border-left: 4px solid #ff4757; }
+        .logout-btn { width: 100%; background: #666; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; }
+        #reportModal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); z-index: 2000; 
+        }
+        .modal-content {
+            background: rgba(30,30,30,0.98); color: white; margin: auto; margin-top: 20vh; padding: 30px;
+            border-radius: 20px; max-width: 400px; width: 90%; border: 1px solid #444;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #444;
+            background: rgba(50,50,50,0.8); color: white; font-size: 16px;
+        }
+        .modal-btn { width: 48%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; margin: 1%; }
+        .btn-success { background: linear-gradient(135deg, #2ed573, #1e7e34); color: white; }
+        .btn-cancel { background: #ff4757; color: white; }
+        @media (max-width: 768px) { .sidebar { width: 280px; } }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle" title="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="user-info">
+            <img id="userPhoto" class="profile-pic" src="" alt="Foto" style="display: none;">
+            <i class="fas fa-user-circle" id="defaultPhoto" style="font-size: 5rem; color: #4a90e2;"></i>
+            <h2 id="userName">Usuário</h2>
+            <p id="userEmail">email@test.com</p>
+        </div>
+
+        <button class="report-btn" id="reportBtn">
+            <i class="fas fa-exclamation-triangle"></i> Reportar Acidente
+        </button>
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #444;">
+            <input type="file" id="fotoInput" accept="image/*" style="display: none; width: 100%; padding: 10px; background: rgba(50,50,50,0.8); color: white; border-radius: 8px; margin-bottom: 10px;">
+            <label for="fotoInput" style="display: block; text-align: center; padding: 12px; background: #4a90e2; color: white; border-radius: 8px; cursor: pointer; margin-bottom: 10px;">📸 Alterar Foto</label>
+            <button class="logout-btn" id="changePassBtn" style="width: 100%; background: #4a90e2;">🔑 Alterar Senha</button>
+        </div>
+
+        <h3 style="margin: 20px 0 10px 0; color: #ccc;">Acidentes Próximos</h3>
+        <div id="reportsList" class="reports-list">
+            <!-- Demo load aqui -->
+        </div>
+
+        <button class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Modal Report Acidente -->
+    <div id="reportModal">
+        <div class="modal-content">
+            <h3 style="color: #ff4757; margin-bottom: 20px;">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 10px;"></i>
+                Reportar Acidente
+            </h3>
+            <div class="form-group">
+                <select id="accidentType">
+                    <option>Buraco na pista</option>
+                    <option>Trânsito lento</option>
+                    <option>Acidente</option>
+                    <option>Obstáculo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" id="accidentDesc" placeholder="Descrição rápida (opcional)">
+            </div>
+            <button class="modal-btn btn-success" id="submitReport">Reportar Acidente</button>
+            <button class="modal-btn btn-cancel" id="closeModal">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Auth check localStorage
+        const token = localStorage.getItem('token') || 'demo';
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.email) window.location.href = 'Login.html';
+
+        // User info
+        document.getElementById('userName').textContent = user.nome || 'Usuário';
+        document.getElementById('userEmail').textContent = user.email || 'user@test.com';
+
+        // Mapa central
+        const map = L.map('map').setView([-23.5505, -46.6333], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap | Sistema Italo Maps'
+        }).addTo(map);
+
+        let userMarker, currentLocation = [-23.5505, -46.6333];
+        let reportsLayer = L.layerGroup().addTo(map);
+
+        // GPS live
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(position => {
+                currentLocation = [position.coords.latitude, position.coords.longitude];
+                map.setView(currentLocation, 16);
+                if (userMarker) userMarker.setLatLng(currentLocation);
+                else {
+                    userMarker = L.marker(currentLocation, {
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41]
+                        })
+                    }).addTo(map).bindPopup('Sua posição GPS Live');
+                }
+            }, error => console.log('GPS error:', error), {enableHighAccuracy: true});
+        }
+
+        // Demo acidentes mapa
+        const demoAccidents = [
+            {lat: -23.5510, lng: -46.6320, type: 'Buraco', desc: 'Pista destruída na direita'},
+            {lat: -23.5500, lng: -46.6350, type: 'Acidente', desc: 'Colisão frontal 2 carros'},
+            {lat: -23.5525, lng: -46.6335, type: 'Trânsito', desc: 'Congestionamento 1.5km'}
+        ];
+
+        demoAccidents.forEach((accident, index) => {
+            L.marker([accident.lat, accident.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(reportsLayer).bindPopup(`
+                <b>${accident.type}</b><br>
+                ${accident.desc}<br>
+                <small>2min atrás</small>
+            `);
+        });
+
+        // Popula list demo
+        document.getElementById('reportsList').innerHTML = demoAccidents.map(a => `
+            <div class="report-item">
+                <strong style="color: #ff4757;">${a.type}</strong><br>
+                ${a.desc}<br>
+                <small>2min atrás • 1.2km</small>
+            </div>
+        `).join('');
+
+        // Rota simple linha demo
+        document.getElementById('calcularRota').onclick = () => {
+            const origem = document.getElementById('origem').value.split(',').map(Number) || currentLocation;
+            const destino = document.getElementById('destino').value.split(',').map(Number);
+            
+            if (!destino || destino.length !== 2 || isNaN(destino[0]) || isNaN(destino[1])) {
+                alert('Digite destino: lat,lng ex: -23.56, -46.64');
+                return;
+            }
+
+            // Clear rota anterior
+            if (window.routeLayer) map.removeLayer(window.routeLayer);
+            
+            // Linha rota certinha
+            window.routeLayer = L.polyline([origem, destino], {
+                color: '#00d4aa', // Verde Waze
+                weight: 10,
+                opacity: 0.9,
+                dashArray: '15, 10' // Dashed preview
+            }).addTo(map);
+
+            // Fit view
+            map.fitBounds(window.routeLayer.getBounds().pad(0.1));
+            
+            // ETA demo
+            const distance = Math.hypot(destino[0]-origem[0], destino[1]-origem[1]) * 111;
+            const timeMin = Math.round(distance * 2);
+            alert(`Rota traçada! ${distance.toFixed(1)}km • ~${timeMin}min (verde=ótima)`);
+        };
+
+        // Report acidente click mapa
+        let clickedLocation;
+        map.on('click', e => {
+            clickedLocation = e.latlng;
+            document.getElementById('accidentType').value = 'Buraco na pista';
+            document.getElementById('accidentDesc').value = '';
+            document.getElementById('reportModal').style.display = 'flex';
+        });
+
+        // Report btn sidebar
+        document.getElementById('reportBtn').onclick = () => {
+            clickedLocation = currentLocation;
+            document.getElementById('reportModal').style.display = 'flex';
+        };
+
+        // Modal controls
+        document.getElementById('closeModal').onclick = () => document.getElementById('reportModal').style.display = 'none';
+        document.getElementById('submitReport').onclick = () => {
+            if (!clickedLocation) return alert('Clique no mapa primeiro!');
+            
+            const type = document.getElementById('accidentType').value;
+            const desc = document.getElementById('accidentDesc').value || type;
+            
+            // Marker acidente
+            L.marker(clickedLocation, {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(reportsLayer).bindPopup(`
+                <b>${type}</b><br>${desc}<br>
+                <small>Agora • Você</small>
+            `);
+
+            // Add list
+            const list = document.getElementById('reportsList');
+            const newReport = document.createElement('div');
+            newReport.className = 'report-item';
+            newReport.innerHTML = `
+                <strong style="color: #ff6b6b;">${type}</strong><br>
+                ${desc}<br>
+                <small>Agora • Local clicado</small>
+            `;
+            list.insertBefore(newReport, list.firstChild);
+
+            alert(`✅ Acidente ${type} registrado!`);
+            document.getElementById('reportModal').style.display = 'none';
+        };
+
+        // Perfil
+        document.getElementById('fotoInput').onchange = e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    document.getElementById('userPhoto').src = ev.target.result;
+                    document.getElementById('userPhoto').style.display = 'block';
+                    document.getElementById('defaultPhoto').style.display = 'none';
+                    localStorage.setItem('fotoUrl', ev.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        document.getElementById('changePassBtn').onclick = () => {
+            const newPass = prompt('Nova senha (6+ caracteres):');
+            if (newPass && newPass.length >= 6) {
+                alert('Senha alterada com sucesso!');
+            } else {
+                alert('Senha deve ter 6+ chars!');
+            }
+        };
+
+        // Load foto salva
+        const savedFoto = localStorage.getItem('fotoUrl');
+        if (savedFoto) {
+            document.getElementById('userPhoto').src = savedFoto;
+            document.getElementById('userPhoto').style.display = 'block';
+            document.getElementById('defaultPhoto').style.display = 'none';
+        }
+
+        // Sidebar controls
+        document.getElementById('sidebarToggle').onclick = () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        };
+
+        document.getElementById('logoutBtn').onclick = () => {
+            localStorage.clear();
+            window.location.href = 'Login.html';
+        };
+
+        // Close sidebar outside click
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.sidebar') && !e.target.closest('.sidebar-toggle')) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+
+        // Demo rota inputs default
+        document.getElementById('origem').placeholder = 'Sua posição GPS auto';
+        document.getElementById('destino').placeholder = 'ex: -23.56, -46.64';
+    </script>
+</body>
+</html>
