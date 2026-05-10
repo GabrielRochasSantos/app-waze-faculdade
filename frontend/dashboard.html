@@ -71,6 +71,18 @@
             <label for="fotoInput" style="display: block; text-align: center; padding: 12px; background: #4a90e2; color: white; border-radius: 8px; cursor: pointer; margin-bottom: 10px;">📸 Alterar Foto</label>
             <button class="logout-btn" id="changePassBtn" style="width: 100%; background: #4a90e2;">🔑 Alterar Senha</button>
         </div>
+            <h3 style="margin: 20px 0 10px 0; color: #ccc;">Rota</h3>
+
+            <input type="text" id="origem" placeholder="Sua posição GPS auto">
+
+                <br><br>
+
+            <input type="text" id="destino" placeholder="ex: -23.56, -46.64">
+
+                <br><br>
+
+            <button id="calcularRota" class="report-btn">Calcular rota</button>
+
 
         <h3 style="margin: 20px 0 10px 0; color: #ccc;">Acidentes Próximos</h3>
         <div id="reportsList" class="reports-list">
@@ -177,7 +189,20 @@
 
         // Rota simple linha demo
         document.getElementById('calcularRota').onclick = () => {
-            const origem = document.getElementById('origem').value.split(',').map(Number) || currentLocation;
+            const origemTexto = document.getElementById('origem').value.trim();
+
+            let origem;
+
+            if (origemTexto === '') {
+                origem = currentLocation;
+            } else {
+                origem = origemTexto.split(',').map(Number);
+                if (!origem || origem.length !== 2 || isNaN(origem[0]) || isNaN(origem[1])) {
+                    alert('Digite origem: lat,lng ex: -23.55, -46.63 ou deixe vazio para GPS');
+                    return;
+                }
+            }
+
             const destino = document.getElementById('destino').value.split(',').map(Number);
             
             if (!destino || destino.length !== 2 || isNaN(destino[0]) || isNaN(destino[1])) {
