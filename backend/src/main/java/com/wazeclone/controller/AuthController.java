@@ -32,16 +32,46 @@ public class AuthController {
         try {
             String email = credentials.get("email");
             String senha = credentials.get("senha");
+            // authService valida senha e gera token
             String token = authService.login(email, senha);
-            return ResponseEntity.ok(Map.of("token", token, "message", "Login OK!"));
+            // Para exibir nome no frontend
+            String nome = authService.getNomeByEmail(email);
+            return ResponseEntity.ok(Map.of("token", token, "message", "Login OK!", "nome", nome));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
 
     @PostMapping("/update-profile")
     public ResponseEntity<Map<String, String>> updateProfile(@RequestBody Map<String, String> update) {
         // TODO: Implement with JWT validation
         return ResponseEntity.ok(Map.of("message", "Perfil atualizado"));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("email");
+            String code = authService.forgotPassword(email);
+            // Para teste: devolve código no JSON (sem email real)
+            return ResponseEntity.ok(Map.of("message", "Código gerado!", "resetCode", code));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("email");
+            String resetCode = body.get("resetCode");
+            String novaSenha = body.get("novaSenha");
+            authService.resetPassword(email, resetCode, novaSenha);
+            return ResponseEntity.ok(Map.of("message", "Senha redefinida com sucesso!"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
+

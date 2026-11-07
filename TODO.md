@@ -1,11 +1,8 @@
-# Progresso: Fix Backend Crash para Login Funcionar
+# TODO - Visão da Rua (Mapillary)
 
-- [x] Frontend JS limpo + links fixos
-- [ ] Fix AuthService: jwtSecret null NPE
-- [ ] Fix RouteService: remove Redis dep (no RedisTemplate)
-- [ ] Fix ReportController: syntax linha 32
-- [ ] Test: cd backend ENTER mvn clean spring-boot:run
-- [ ] Test login/register no frontend/login.html
+- [x] Verificar requisitos 1-4 (botão, modo pick, modal/painel, carregamento via API e exibição de imagens 360°/próximas)
+- [x] Ajustar `frontend/dashboard.html` para garantir alinhamento estrito aos requisitos
+- [x] Validar cursor/mensagens/fechar e navegação prev/next
+- [x] Executar teste manual no navegador (abrir modal, selecionar ponto, verificar carregamento, ausência de imagens)
 
-**Step atual: Fix code backend.**
 

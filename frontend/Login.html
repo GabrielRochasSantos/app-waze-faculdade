@@ -1,138 +1,765 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Localização da Italo</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="dark-theme.css">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Sistema de Localização Italo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Tokens ─────────────────────────────────────────────── */
+    :root {
+      --bg:           #06080f;
+      --surface:      rgba(255,255,255,0.04);
+      --surface-hover:rgba(255,255,255,0.07);
+      --border:       rgba(255,255,255,0.08);
+      --border-focus: rgba(99,179,255,0.55);
+      --accent:       #3b82f6;
+      --accent-glow:  rgba(59,130,246,0.35);
+      --accent-dark:  #1d4ed8;
+      --text-1:       #f0f4ff;
+      --text-2:       rgba(240,244,255,0.55);
+      --text-3:       rgba(240,244,255,0.30);
+      --radius-sm:    8px;
+      --radius-md:    12px;
+      --radius-lg:    18px;
+      --radius-xl:    24px;
+      --ease-out:     cubic-bezier(0.22,1,0.36,1);
+      --ease-spring:  cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* ─── Base ───────────────────────────────────────────────── */
+    html, body {
+      height: 100%;
+      font-family: 'Sora', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      overflow: hidden;
+    }
+
+    /* ─── Scene / 3-D perspective ────────────────────────────── */
+    .scene {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    /* ─── Canvas BG ──────────────────────────────────────────── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── Radial glow behind card ────────────────────────────── */
+    .glow-blob {
+      position: fixed;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      animation: blob-pulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes blob-pulse {
+      0%, 100% { transform: translate(-50%,-50%) scale(1);   opacity: 1;   }
+      50%       { transform: translate(-50%,-50%) scale(1.15); opacity: 0.7; }
+    }
+
+    /* ─── Card ───────────────────────────────────────────────── */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: 420px;
+      background: rgba(10,14,28,0.82);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2.25rem 2rem;
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      transition: transform 0.08s linear, box-shadow 0.3s ease;
+      box-shadow:
+        0 0 0 1px rgba(59,130,246,0.08),
+        0 24px 64px rgba(0,0,0,0.7),
+        0  4px 16px rgba(0,0,0,0.5);
+      animation: card-enter 0.9s var(--ease-out) both;
+    }
+
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(32px) rotateX(6deg) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    rotateX(0deg) scale(1);    }
+    }
+
+    /* top shimmer line */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 16%; right: 16%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,179,255,0.7), transparent);
+      border-radius: 999px;
+      animation: shimmer-line 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer-line {
+      0%,100% { opacity: 0.4; }
+      50%      { opacity: 1;   }
+    }
+
+    /* ─── Brand ──────────────────────────────────────────────── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+      animation: fade-up 0.6s 0.2s var(--ease-out) both;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(59,130,246,0.4);
+      flex-shrink: 0;
+    }
+
+    .brand-icon svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .brand-label { line-height: 1.25; }
+    .brand-name  { font-size: 13px; font-weight: 600; color: var(--text-1); letter-spacing: 0.01em; }
+    .brand-sub   { font-size: 11px; color: var(--text-3); font-weight: 400; }
+
+    /* ─── Heading ────────────────────────────────────────────── */
+    .heading {
+      margin-bottom: 0.2rem;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-1);
+      animation: fade-up 0.6s 0.3s var(--ease-out) both;
+    }
+
+    .subheading {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 1.75rem;
+      animation: fade-up 0.6s 0.35s var(--ease-out) both;
+    }
+
+    /* ─── Fields ─────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 1rem;
+      animation: fade-up 0.6s var(--ease-out) both;
+    }
+    .field:nth-child(1) { animation-delay: 0.4s; }
+    .field:nth-child(2) { animation-delay: 0.45s; }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    .field-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .field-wrap:hover  { background: var(--surface-hover); }
+
+    .field-wrap:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+      background: var(--surface-hover);
+    }
+
+    .field-wrap svg {
+      width: 16px; height: 16px;
+      stroke: var(--text-3);
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      flex-shrink: 0;
+      margin-left: 12px;
+      transition: stroke 0.2s;
+    }
+
+    .field-wrap:focus-within svg { stroke: var(--accent); }
+
+    .field-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-1);
+    }
+
+    .field-wrap input::placeholder { color: var(--text-3); }
+
+    .toggle-pw {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0 12px;
+      color: var(--text-3);
+      display: flex;
+      transition: color 0.2s;
+    }
+
+    .toggle-pw:hover { color: var(--text-2); }
+    .toggle-pw svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ─── Forgot ─────────────────────────────────────────────── */
+    .forgot-row {
+      text-align: right;
+      margin: -0.4rem 0 1.4rem;
+      animation: fade-up 0.6s 0.5s var(--ease-out) both;
+    }
+
+    .forgot-row a {
+      font-size: 12px;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .forgot-row a:hover { color: var(--accent); }
+
+    /* ─── Primary button ─────────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s var(--ease-spring), box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(59,130,246,0.4);
+      animation: fade-up 0.6s 0.55s var(--ease-out) both;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+
+    .btn-primary:hover::after  { transform: translateX(100%); }
+    .btn-primary:hover         { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(59,130,246,0.5); }
+    .btn-primary:active        { transform: translateY(0) scale(0.98); }
+
+    .btn-primary svg { width: 16px; height: 16px; stroke: #fff; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ─── Divider ────────────────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 1.5rem 0;
+      animation: fade-up 0.6s 0.6s var(--ease-out) both;
+    }
+
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider span { font-size: 11px; color: var(--text-3); white-space: nowrap; }
+
+    /* ─── Social buttons ─────────────────────────────────────── */
+    .social-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 1.75rem;
+      animation: fade-up 0.6s 0.65s var(--ease-out) both;
+    }
+
+    .btn-social {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 400;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s var(--ease-spring);
+    }
+
+    .btn-social:hover {
+      background: var(--surface-hover);
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-1px);
+    }
+
+    .btn-social:active { transform: scale(0.97); }
+
+    .btn-social svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    .card-footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-3);
+      animation: fade-up 0.6s 0.7s var(--ease-out) both;
+    }
+
+    .card-footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .card-footer a:hover { text-decoration: underline; }
+
+    /* ─── Loading state ──────────────────────────────────────── */
+    .spin {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Utility ────────────────────────────────────────────── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* ─── Floating particles (CSS only) ─────────────────────── */
+    .particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(99,179,255,0.18);
+      animation: float-up linear infinite;
+    }
+
+    @keyframes float-up {
+      from { transform: translateY(110vh) scale(0.5); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      to   { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .card { width: 92vw; padding: 2rem 1.5rem; border-radius: var(--radius-lg); }
+      .glow-blob { width: 300px; height: 300px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+
+<!-- ─── Background canvas ────────────────────────────────────── -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ─── Glow blob ─────────────────────────────────────────────── -->
+<div class="glow-blob"></div>
+
+<!-- ─── Floating particles ───────────────────────────────────── -->
+<div class="particles" id="particles"></div>
+
+<!-- ─── 3-D Scene ─────────────────────────────────────────────── -->
+<div class="scene" id="scene">
+  <div class="card" id="card">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-icon">
+        <!-- Route icon -->
+        <svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg>
+      </div>
+      <div class="brand-label">
+        <div class="brand-name">Sistema de Localização</div>
+        <div class="brand-sub">Italo Transportes</div>
+      </div>
     </div>
 
-    <div class="login-container">
-        <div class="logo">
-            <i class="fas fa-route"></i>
-            <h1>Sistema de Localização da Italo</h1>
+    <!-- Heading -->
+    <h1 class="heading">Boas-vindas</h1>
+    <p class="subheading">Acesse sua conta para continuar</p>
+
+    <!-- Form -->
+    <form id="loginForm" novalidate>
+
+      <!-- Email -->
+      <div class="field">
+        <label for="email">Email</label>
+        <div class="field-wrap">
+          <!-- Mail icon -->
+          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+          <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required />
         </div>
+      </div>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <input type="email" id="email" placeholder="Email" required>
-                <i class="fas fa-envelope"></i>
-            </div>
-
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Senha" required>
-                <i class="fas fa-lock"></i>
-            </div>
-
-            <button type="submit" class="login-btn">
-                <i class="fas fa-sign-in-alt"></i> Entrar
-            </button>
-        </form>
-
-        <div class="divider">
-            <span>ou continue com</span>
+      <!-- Senha -->
+      <div class="field">
+        <label for="password">Senha</label>
+        <div class="field-wrap">
+          <!-- Lock icon -->
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+          <button type="button" class="toggle-pw" id="pwToggle" aria-label="Mostrar senha">
+            <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
+      </div>
 
-        <div class="social-login">
-            <button class="social-btn google">
-                <i class="fab fa-google"></i>
-                Google
-            </button>
-            <button class="social-btn facebook">
-                <i class="fab fa-facebook-f"></i>
-                Facebook
-            </button>
-        </div>
+      <!-- Forgot -->
+      <div class="forgot-row">
+        <a href="#" id="forgotLink">Esqueceu a senha?</a>
+      </div>
 
-        <div class="link-page">
-            <p>Não tem conta? <a href="cadastro.html">Criar conta</a></p>
-        </div>
+      <!-- Submit -->
+      <button type="submit" class="btn-primary" id="submitBtn">
+        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Entrar
+      </button>
 
-        <div class="forgot-password">
-            <a href="#" id="forgotPass"></a>
-        </div>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span>ou continue com</span>
+      <div class="divider-line"></div>
     </div>
 
-    <script>
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-            input.addEventListener('blur', function() {
-                if (!this.value) this.parentElement.classList.remove('focused');
-            });
-        });
+    <!-- Social -->
+    <div class="social-row">
+      <button type="button" class="btn-social" id="googleBtn">
+        <svg viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+      <button type="button" class="btn-social" id="facebookBtn">
+        <svg viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
+        </svg>
+        Facebook
+      </button>
+    </div>
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const senha = document.getElementById('password').value;
-            
-            if (!email || !senha) {
-                alert('Preencha email e senha!');
-                return;
-            }
+    <!-- Footer -->
+    <div class="card-footer">
+      Não tem conta? <a href="cadastro.html">Criar conta</a>
+    </div>
 
-            const btn = document.querySelector('.login-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
-            btn.disabled = true;
+  </div><!-- /card -->
+</div><!-- /scene -->
 
-            try {
-                const response = await fetch('http://localhost:8081/api/auth/login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email, senha})
-                });
 
-                const data = await response.json();
-                
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify({email, nome: data.nome || email.split('@')[0]}));
-                    window.location.href = 'dashboard.html';
-                } else {
-                    alert('❌ Credenciais incorretas!');
-                }
-            } catch (error) {
-                alert('❌ Backend não roda? cd backend && mvn spring-boot:run');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
+<script>
+  /* ═══════════════════════════════════════════════
+     CANVAS — animated grid + floating orbs
+  ═══════════════════════════════════════════════ */
+  (function initCanvas() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, raf;
 
-        document.getElementById('forgotPass').onclick = function(e) {
-            e.preventDefault();
-            const newPass = prompt('Nova senha (6+ chars):');
-            if (newPass && newPass.length >= 6) {
-                document.getElementById('password').value = newPass;
-                alert('Senha setada!');
-            }
-        };
+    const orbs = Array.from({ length: 6 }, () => ({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.0004,
+      vy: (Math.random() - 0.5) * 0.0004,
+      r: 180 + Math.random() * 160,
+      alpha: 0.04 + Math.random() * 0.05,
+    }));
 
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.width = particle.style.height = (Math.random() * 20 + 10) + 'px';
-            particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
-            particle.style.animationDelay = Math.random() * 2 + 's';
-            document.querySelector('.particles').appendChild(particle);
-            setTimeout(() => particle.remove(), 7000);
-        }
-        setInterval(createParticle, 1000);
-    </script>
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function drawGrid() {
+      const spacing = 52;
+      ctx.strokeStyle = 'rgba(99,179,255,0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < W; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 0; y < H; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+    }
+
+    function drawOrbs(t) {
+      orbs.forEach(o => {
+        o.x += o.vx; o.y += o.vy;
+        if (o.x < 0 || o.x > 1) o.vx *= -1;
+        if (o.y < 0 || o.y > 1) o.vy *= -1;
+        const grd = ctx.createRadialGradient(o.x*W, o.y*H, 0, o.x*W, o.y*H, o.r);
+        grd.addColorStop(0, `rgba(59,130,246,${o.alpha})`);
+        grd.addColorStop(1, 'transparent');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(o.x*W, o.y*H, o.r, 0, Math.PI*2);
+        ctx.fill();
+      });
+    }
+
+    function tick(t) {
+      ctx.clearRect(0, 0, W, H);
+      drawGrid();
+      drawOrbs(t);
+      raf = requestAnimationFrame(tick);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    tick(0);
+  })();
+
+
+  /* ═══════════════════════════════════════════════
+     PARTICLES
+  ═══════════════════════════════════════════════ */
+  (function initParticles() {
+    const container = document.getElementById('particles');
+
+    function spawn() {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 4 + Math.random() * 12;
+      p.style.cssText = `
+        left: ${Math.random() * 100}%;
+        width: ${size}px;
+        height: ${size}px;
+        animation-duration: ${5 + Math.random() * 8}s;
+        animation-delay: ${Math.random() * 4}s;
+        opacity: 0;
+      `;
+      container.appendChild(p);
+      setTimeout(() => p.remove(), 14000);
+    }
+
+    for (let i = 0; i < 12; i++) spawn();
+    setInterval(spawn, 1200);
+  })();
+
+
+  /* ═══════════════════════════════════════════════
+     3-D TILT on mousemove
+  ═══════════════════════════════════════════════ */
+  (function initTilt() {
+    const card  = document.getElementById('card');
+    const scene = document.getElementById('scene');
+    const MAX   = 10; // max degrees
+
+    scene.addEventListener('mousemove', e => {
+      const { left, top, width, height } = scene.getBoundingClientRect();
+      const x = (e.clientX - left) / width  - 0.5;  // -0.5 … 0.5
+      const y = (e.clientY - top)  / height - 0.5;
+      card.style.transform = `rotateY(${x * MAX}deg) rotateX(${-y * MAX}deg)`;
+    });
+
+    scene.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+      card.style.transform  = 'rotateX(0deg) rotateY(0deg)';
+      setTimeout(() => card.style.transition = 'transform 0.08s linear, box-shadow 0.3s ease', 650);
+    });
+  })();
+
+
+  /* ═══════════════════════════════════════════════
+     PASSWORD TOGGLE
+  ═══════════════════════════════════════════════ */
+  (function initPasswordToggle() {
+    const btn   = document.getElementById('pwToggle');
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eyeIcon');
+
+    const EYE     = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    const EYE_OFF = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+
+    btn.addEventListener('click', () => {
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = EYE_OFF;
+        btn.setAttribute('aria-label', 'Ocultar senha');
+      } else {
+        input.type = 'password';
+        icon.innerHTML = EYE;
+        btn.setAttribute('aria-label', 'Mostrar senha');
+      }
+    });
+  })();
+
+
+  /* ═══════════════════════════════════════════════
+     LOGIN FORM
+  ═══════════════════════════════════════════════ */
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('password').value;
+
+    if (!email || !senha) {
+      showError('Preencha email e senha!');
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Entrando…';
+
+    try {
+      const response = await fetch('http://localhost:8081/api/auth/login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, senha }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({ email, nome: data.nome || email.split('@')[0] }));
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none"><polyline points="20 6 9 17 4 12"/></svg> Sucesso!';
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+      } else {
+        showError('Credenciais incorretas. Tente novamente.');
+        resetBtn(btn);
+      }
+    } catch {
+      showError('Servidor offline. Inicie o backend com: cd backend && mvn spring-boot:run');
+      resetBtn(btn);
+    }
+  });
+
+  function resetBtn(btn) {
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+        <polyline points="10 17 15 12 10 7"/>
+        <line x1="15" y1="12" x2="3" y2="12"/>
+      </svg> Entrar`;
+  }
+
+  function showError(msg) {
+    const existing = document.getElementById('error-banner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'error-banner';
+    banner.style.cssText = `
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #fca5a5;
+      margin-bottom: 1rem;
+      animation: fade-up 0.3s ease both;
+    `;
+    banner.textContent = msg;
+
+    const form = document.getElementById('loginForm');
+    form.insertBefore(banner, form.firstChild);
+    setTimeout(() => banner.remove(), 5000);
+  }
+
+
+  /* ═══════════════════════════════════════════════
+     FORGOT PASSWORD
+  ═══════════════════════════════════════════════ */
+  document.getElementById('forgotLink').addEventListener('click', async function (e) {
+    e.preventDefault();
+
+    const email = prompt('Informe seu email para redefinir a senha:');
+    if (!email) return;
+
+    try {
+      const r1 = await fetch('http://localhost:8081/api/auth/forgot-password', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email }),
+      });
+      const d1 = await r1.json();
+      if (!r1.ok) throw new Error(d1.error || 'Erro ao gerar código');
+
+      const code = prompt('Digite o código enviado para seu email:');
+      if (!code) return;
+
+      const novaSenha = prompt('Nova senha (mín. 6 caracteres):');
+      if (!novaSenha || novaSenha.length < 6) { alert('A senha deve ter no mínimo 6 caracteres.'); return; }
+
+      const r2 = await fetch('http://localhost:8081/api/auth/reset-password', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, resetCode: code, novaSenha }),
+      });
+      const d2 = await r2.json();
+      if (!r2.ok) throw new Error(d2.error || 'Erro ao redefinir');
+
+      alert('✅ Senha redefinida com sucesso!');
+      document.getElementById('password').value = novaSenha;
+    } catch (err) {
+      alert('❌ ' + (err.message || 'Erro inesperado'));
+    }
+  });
+
+
+  /* ═══════════════════════════════════════════════
+     SOCIAL BUTTONS (placeholder)
+  ═══════════════════════════════════════════════ */
+  document.getElementById('googleBtn').addEventListener('click', () => {
+    alert('Integre aqui com Google OAuth 2.0');
+  });
+  document.getElementById('facebookBtn').addEventListener('click', () => {
+    alert('Integre aqui com Facebook Login SDK');
+  });
+</script>
 </body>
 </html>

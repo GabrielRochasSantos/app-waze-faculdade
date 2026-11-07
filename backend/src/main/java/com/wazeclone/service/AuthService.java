@@ -19,10 +19,15 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private final SecretKey secretKey;
 
-public AuthService(UserRepository userRepository) {
+    private final EmailService emailService;
+
+    public AuthService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
+        this.emailService = emailService;
         this.secretKey = Keys.hmacShaKeyFor("italoNavSecretKeySuperSegura2024".getBytes());
     }
+
+
 
     public String register(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -67,4 +72,55 @@ public AuthService(UserRepository userRepository) {
             return false;
         }
     }
+
+    public String getNomeByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::getNome)
+                .orElseThrow(() -> new RuntimeException("Email não cadastrado"));
+    }
+
+    public String forgotPassword(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email não cadastrado"));
+
+        String code = String.format("%06d", (int) (Math.random() * 1_000_000));
+        user.setPasswordResetCode(code);
+        user.setPasswordResetExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+        userRepository.save(user);
+
+        // Envia por email real (SMTP)
+        emailService.sendResetPasswordEmail(email, code);
+
+        // Continua retornando o código só para manter o frontend atual funcionando
+        return code;
+    }
+
+
+    public void resetPassword(String email, String resetCode, String newSenha) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email não cadastrado"));
+
+        if (user.getPasswordResetCode() == null || user.getPasswordResetExpiresAt() == null) {
+            throw new RuntimeException("Solicite um novo código de redefinição de senha");
+        }
+
+        if (!user.getPasswordResetCode().equals(resetCode)) {
+            throw new RuntimeException("Código inválido" );
+        }
+
+        if (java.time.LocalDateTime.now().isAfter(user.getPasswordResetExpiresAt())) {
+            throw new RuntimeException("Código expirado" );
+        }
+
+        if (newSenha == null || newSenha.length() < 6) {
+            throw new RuntimeException("Senha deve ter no mínimo 6 caracteres" );
+        }
+
+        user.setSenha(encoder.encode(newSenha));
+        user.setPasswordResetCode(null);
+        user.setPasswordResetExpiresAt(null);
+        userRepository.save(user);
+    }
 }
+

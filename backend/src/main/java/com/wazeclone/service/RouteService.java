@@ -6,7 +6,9 @@ import com.wazeclone.model.Route;
 import com.wazeclone.repository.RouteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class RouteService {
@@ -18,10 +20,17 @@ public class RouteService {
         this.routeRepository = routeRepository;
     }
 
-    public Route calculateRoute(Double fromLat, Double fromLng, Double toLat, Double toLng, String userEmail) {
-        String url = String.format("https://graphhopper.com/api/1/route?point=%.6f,%.6f&point=%.6f,%.6f&vehicle=car&calc_points=true&debug=true", 
-                                   fromLat, fromLng, toLat, toLng);
-        
+    public Route calculateRoute(String fromAddress, String toAddress, String userEmail) {
+        // 1) Geocodifica endereços -> lat/lng (Nominatim)
+        LatLng from = geocode(fromAddress);
+        LatLng to = geocode(toAddress);
+
+        // 2) Calcula rota (GraphHopper)
+        String url = String.format(
+                "https://graphhopper.com/api/1/route?point=%.6f,%.6f&point=%.6f,%.6f&vehicle=car&calc_points=true&debug=true",
+                from.lat, from.lng, to.lat, to.lng
+        );
+
         try {
             String response = webClient.get()
                     .uri(url)
@@ -29,26 +38,41 @@ public class RouteService {
                     .bodyToMono(String.class)
                     .block();
 
-            // Parse simple (distance, time)
             JsonNode json = objectMapper.readTree(response);
             JsonNode path = json.path("paths").get(0);
+
             Double distKm = path.path("distance").asDouble() / 1000;
             Double timeSec = path.path("time").asDouble() / 60;
             Integer trafficScore = (int) (Math.random() * 40 + 10); // Simula trânsito
 
-            Route route = new Route(fromLat, fromLng, toLat, toLng, userEmail);
+            Route route = new Route(
+                    fromAddress,
+                    toAddress,
+                    from.lat,
+                    from.lng,
+                    to.lat,
+                    to.lng,
+                    userEmail
+            );
+
             route.setDistanceKm(distKm);
             route.setEstimatedTimeMin(timeSec.intValue());
             route.setTrafficScore(trafficScore);
             route.setType("rápida");
             route.setPolyline(path.path("points").path("encoded_polyline").asText(""));
 
-            routeRepository.save(route);
-            return route;
-
+            return routeRepository.save(route);
         } catch (Exception e) {
-            // Fallback demo rota
-            Route demo = new Route(fromLat, fromLng, toLat, toLng, userEmail);
+            // Fallback demo (sem coordenadas estáveis, mas já persistimos os endereços)
+            Route demo = new Route(
+                    fromAddress,
+                    toAddress,
+                    from.lat,
+                    from.lng,
+                    to.lat,
+                    to.lng,
+                    userEmail
+            );
             demo.setDistanceKm(5.2);
             demo.setEstimatedTimeMin(12);
             demo.setTrafficScore(25);
@@ -57,4 +81,45 @@ public class RouteService {
             return routeRepository.save(demo);
         }
     }
+
+    private LatLng geocode(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            throw new IllegalArgumentException("Endereço inválido");
+        }
+
+        String q = URLEncoder.encode(address.trim(), StandardCharsets.UTF_8);
+        String url = "https://nominatim.openstreetmap.org/search?q=" + q + "&format=json&limit=1";
+
+        try {
+            String response = webClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            JsonNode arr = objectMapper.readTree(response);
+            if (!arr.isArray() || arr.isEmpty()) {
+                throw new RuntimeException("Geocoding não encontrou: " + address);
+            }
+
+            JsonNode first = arr.get(0);
+            double lat = first.path("lat").asDouble();
+            double lon = first.path("lon").asDouble();
+
+            return new LatLng(lat, lon);
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao geocodificar endereço: " + address, e);
+        }
+    }
+
+    private static class LatLng {
+        final double lat;
+        final double lng;
+
+        LatLng(double lat, double lng) {
+            this.lat = lat;
+            this.lng = lng;
+        }
+    }
 }
+

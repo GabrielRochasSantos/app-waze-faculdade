@@ -19,14 +19,15 @@ public class RouteController {
     }
 
     @GetMapping("/calculate")
-    public ResponseEntity<Route> calculate(@RequestParam Double fromLat, 
-                                          @RequestParam Double fromLng,
-                                          @RequestParam Double toLat,
-                                          @RequestParam Double toLng,
-                                          @RequestParam String userEmail) {
-        Route route = routeService.calculateRoute(fromLat, fromLng, toLat, toLng, userEmail);
+    public ResponseEntity<Route> calculate(@RequestParam String fromAddress,
+                                              @RequestParam String toAddress,
+                                              @RequestParam String userEmail) {
+        Route route = routeService.calculateRoute(fromAddress, toAddress, userEmail);
+
+
         return ResponseEntity.ok(route);
     }
+
 
     @GetMapping("/history/{userEmail}")
     public ResponseEntity<List<Route>> getHistory(@PathVariable String userEmail) {

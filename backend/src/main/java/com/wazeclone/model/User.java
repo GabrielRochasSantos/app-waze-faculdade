@@ -31,6 +31,11 @@ public class User {
     @OneToMany(mappedBy = "userEmail", cascade = CascadeType.ALL)
     private List<Report> reports;
 
+    // Reset de senha (código temporário para testes/sem envio de email real)
+    private String passwordResetCode;
+    private LocalDateTime passwordResetExpiresAt;
+
+
     // Constructors
     public User() {}
 
@@ -61,4 +66,11 @@ public class User {
 
     public List<Report> getReports() { return reports; }
     public void setReports(List<Report> reports) { this.reports = reports; }
+
+    public String getPasswordResetCode() { return passwordResetCode; }
+    public void setPasswordResetCode(String passwordResetCode) { this.passwordResetCode = passwordResetCode; }
+
+    public LocalDateTime getPasswordResetExpiresAt() { return passwordResetExpiresAt; }
+    public void setPasswordResetExpiresAt(LocalDateTime passwordResetExpiresAt) { this.passwordResetExpiresAt = passwordResetExpiresAt; }
 }
+

@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reports")
-@CrossOrigin(origins = "http://localhost:8080") // Frontend live-server
+@CrossOrigin(origins = "*") // permitir qualquer origem (Live Server / testes)
 public class ReportController {
 
     @Autowired
