@@ -79,6 +79,17 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Email não cadastrado"));
     }
 
+    public void changePassword(String token, String novaSenha) {
+        if (novaSenha == null || novaSenha.length() < 6) {
+            throw new RuntimeException("Senha deve ter no mínimo 6 caracteres");
+        }
+        String email = getEmailFromToken(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email não cadastrado"));
+        user.setSenha(encoder.encode(novaSenha));
+        userRepository.save(user);
+    }
+
     public String forgotPassword(String email) {
 
         User user = userRepository.findByEmail(email)

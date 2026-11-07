@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criar Conta — Sistema de Localização Italo</title>
+  <title>Criar Conta — Italo Maps Acessível (60+)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -82,6 +82,7 @@
 
     /* ─── Card ────────────────────────────────────────────── */
     .card {
+      position: relative;
       width: 100%; max-width: 420px;
       background: rgba(10,14,28,0.82);
       border: 1px solid var(--border);
@@ -296,19 +297,113 @@
       to   { opacity:1;transform:translateY(0);    }
     }
 
+    /* ─── Accessibility ───────────────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .card { transform: none !important; }
+      #bg-canvas, .particles { display: none; }
+      .glow-blob { animation: none; }
+    }
+
     @media (max-width:480px) {
       .card { padding:2rem 1.5rem; border-radius:18px; }
     }
   </style>
+  <link rel="stylesheet" href="auth-layout.css" />
+  <link rel="stylesheet" href="senior.css" />
 </head>
 <body>
+
+<div class="a11y-bar" role="group" aria-label="Tamanho da letra">
+  <span class="a11y-label">Tamanho da letra</span>
+  <button type="button" class="a11y-btn" data-font="normal" aria-pressed="true" title="Letra normal">A</button>
+  <button type="button" class="a11y-btn" data-font="grande" aria-pressed="false" title="Letra grande">A+</button>
+  <button type="button" class="a11y-btn" data-font="maior" aria-pressed="false" title="Letra muito grande">A++</button>
+</div>
 
 <canvas id="bg-canvas"></canvas>
 <div class="glow-blob"></div>
 <div class="particles" id="particles"></div>
 
-<div class="scene" id="scene">
-  <div class="card" id="card">
+<main class="auth-shell">
+  <aside class="auth-hero">
+    <div class="hero-content">
+      <div class="hero-brand">
+        <div class="hero-logo">
+          <svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg>
+        </div>
+        <div>
+          <div class="hero-name">Italo Maps</div>
+          <div class="hero-sub">Acessível para pessoas 60+</div>
+        </div>
+      </div>
+
+      <div class="hero-tags">
+        <span class="senior-badge">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="M12 7v6"/><path d="m9 21 3-8 3 8"/><path d="M6 11h12"/></svg>
+          60+ Acessível
+        </span>
+        <span class="hero-eyebrow">Cadastro fácil</span>
+      </div>
+      <p class="hero-title">Sua conta<br><span>em 1 minuto.</span></p>
+      <p class="hero-text">Crie sua conta gratuita com letras grandes e campos fáceis de preencher. Um aplicativo pensado para pessoas mais velhas.</p>
+
+      <ul class="hero-features">
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          Cadastro gratuito em menos de 1 minuto
+        </li>
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg></span>
+          Rotas para carro, a pé ou bicicleta
+        </li>
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+          Alertas colaborativos em tempo real
+        </li>
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><path d="M9 15s1 1.5 3 1.5 3-1.5 3-1.5"/></svg></span>
+          Assistente IA Italo no mapa
+        </li>
+      </ul>
+    </div>
+
+    <div class="hero-map" aria-hidden="true">
+      <svg viewBox="0 0 440 180">
+        <defs>
+          <linearGradient id="routeGrad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#00d4aa"/>
+            <stop offset="55%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <g opacity=".45" stroke="rgba(148,163,184,.18)" stroke-width="1">
+          <path d="M0 45h440M0 90h440M0 135h440M110 0v180M220 0v180M330 0v180"/>
+        </g>
+        <path d="M28 142 C 92 142, 96 62, 168 62 S 258 150, 318 112 386 46 412 42" fill="none" stroke="url(#routeGrad)" stroke-width="10" stroke-linecap="round" opacity=".14"/>
+        <path class="route-line" d="M28 142 C 92 142, 96 62, 168 62 S 258 150, 318 112 386 46 412 42" fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="28" cy="142" r="7" fill="#00d4aa" stroke="#06080f" stroke-width="3"/>
+        <circle cx="412" cy="42" r="7" fill="#3b82f6" stroke="#06080f" stroke-width="3"/>
+      </svg>
+      <div class="hero-map-chip"><span class="hero-dot"></span>Rota otimizada <strong>18 min</strong></div>
+    </div>
+
+    <div class="hero-foot">Sistema Italo Transportes • Projeto acadêmico</div>
+  </aside>
+
+  <section class="auth-panel">
+    <div class="scene" id="scene">
+      <div class="card" id="card">
 
     <!-- Brand -->
     <div class="brand">
@@ -316,16 +411,21 @@
         <svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg>
       </div>
       <div>
-        <div class="brand-name">Sistema de Localização</div>
-        <div class="brand-sub">Italo Transportes</div>
+        <div class="brand-name">Italo Maps Acessível</div>
+        <div class="brand-sub">Para pessoas 60+</div>
       </div>
     </div>
 
     <h1 class="heading">Criar conta</h1>
-    <p class="subheading">Preencha os dados para começar</p>
+    <p class="subheading">Preencha os campos abaixo. É rápido e fácil.</p>
 
-    <!-- Error banner -->
-    <div id="error-banner"></div>
+    <div class="senior-note">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="M12 7v6"/><path d="m9 21 3-8 3 8"/><path d="M6 11h12"/></svg>
+      <span>Se precisar de letras maiores, use os botões A / A+ / A++ no topo da tela.</span>
+    </div>
+
+    <!-- Error banner (anunciada por leitores de tela) -->
+    <div id="error-banner" role="alert" aria-live="assertive"></div>
 
     <!-- Form -->
     <form id="registerForm" novalidate>
@@ -335,7 +435,7 @@
         <label for="nome">Nome completo</label>
         <div class="field-wrap" id="wrap-nome">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <input type="text" id="nome" placeholder="Seu nome completo" autocomplete="name" required />
+          <input type="text" id="nome" placeholder="Seu nome completo" autocomplete="name" required autofocus aria-required="true" />
         </div>
         <div class="field-error" id="err-nome"></div>
       </div>
@@ -427,13 +527,18 @@
 
     <!-- Footer -->
     <div class="card-footer">
-      Já tem conta? <a href="login.html">Entrar agora</a>
+      Já tem conta? <a href="Login.html">Entrar agora</a>
     </div>
 
-  </div>
-</div>
+      </div><!-- /card -->
+    </div><!-- /scene -->
+  </section>
+</main>
 
+<script src="config.js"></script>
 <script>
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.backendUrl) || 'http://localhost:8081';
+
 /* ═══════════════════════════════════════════════
    CANVAS BG
 ═══════════════════════════════════════════════ */
@@ -491,6 +596,7 @@
    3D TILT
 ═══════════════════════════════════════════════ */
 (function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const card  = document.getElementById('card');
   const scene = document.getElementById('scene');
   const MAX   = 8;
@@ -600,17 +706,26 @@ const ORIGINAL_BTN = `
     <line x1="22" y1="11" x2="16" y2="11"/>
   </svg> Criar Conta`;
 
-function showError(msg) {
+let bannerTimer;
+function showBanner(msg, info = false) {
   const el = document.getElementById('error-banner');
-  el.textContent = msg; el.style.display = 'block';
-  setTimeout(() => el.style.display='none', 6000);
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = info ? 'rgba(0,212,170,0.1)' : 'rgba(239,68,68,0.1)';
+  el.style.borderColor = info ? 'rgba(0,212,170,0.28)' : 'rgba(239,68,68,0.28)';
+  el.style.color = info ? '#5eead4' : '#fca5a5';
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => el.style.display='none', 6000);
 }
+function showError(msg) { showBanner(msg, false); }
 
 function fieldError(id, msg) {
   const el = document.getElementById('err-'+id);
   if (el) { el.textContent = msg; el.style.display = msg ? 'block':'none'; }
   const wrap = document.getElementById('wrap-'+id);
   if (wrap) { wrap.classList.toggle('error', !!msg); }
+  const input = document.getElementById(id === 'confirm' ? 'confirmarSenha' : id);
+  if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
 }
 
 function clearErrors() {
@@ -641,7 +756,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   btn.innerHTML = '<span class="spin"></span> Criando conta…';
 
   try {
-    const res  = await fetch('http://localhost:8081/api/auth/register', {
+    const res  = await fetch(`${API_BASE}/api/auth/register`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ nome, email, senha }),
@@ -653,7 +768,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none">
           <polyline points="20 6 9 17 4 12"/>
         </svg> Conta criada!`;
-      setTimeout(() => window.location.href = 'login.html', 1000);
+      setTimeout(() => window.location.href = 'Login.html', 1000);
     } else {
       showError('❌ ' + (data.error || 'Erro ao criar conta'));
       btn.disabled = false; btn.innerHTML = ORIGINAL_BTN;
@@ -663,6 +778,14 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     btn.disabled = false; btn.innerHTML = ORIGINAL_BTN;
   }
 });
+
+/* ═══════════════════════════════════════════════
+   SOCIAL BUTTONS (placeholder)
+═══════════════════════════════════════════════ */
+document.querySelectorAll('.btn-social').forEach(btn => {
+  btn.addEventListener('click', () => showBanner('Cadastro social estará disponível em breve.', true));
+});
 </script>
+<script src="senior.js"></script>
 </body>
 </html>

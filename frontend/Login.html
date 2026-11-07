@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Sistema de Localização Italo</title>
+  <title>Login — Italo Maps Acessível (60+)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -386,14 +386,234 @@
       to   { transform: translateY(-10vh) scale(1.2); opacity: 0; }
     }
 
+    /* ─── Error banner ───────────────────────────────────────── */
+    .error-banner {
+      display: none;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #fca5a5;
+      margin-bottom: 1rem;
+      animation: fade-up 0.3s ease both;
+    }
+
+    .error-banner.show { display: block; }
+
+    /* ─── Demo account ───────────────────────────────────────── */
+    .demo-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1.1rem;
+      padding: 10px 12px;
+      border: 1px dashed rgba(99,179,255,0.35);
+      border-radius: var(--radius-md);
+      background: rgba(59,130,246,0.07);
+      animation: fade-up 0.6s 0.5s var(--ease-out) both;
+    }
+
+    .demo-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .demo-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 600; }
+    .demo-creds { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .demo-fill {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border: 1px solid rgba(99,179,255,0.45);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .demo-fill:hover { background: rgba(59,130,246,0.18); }
+    .demo-fill:active { transform: scale(0.97); }
+
+    /* ─── Caps Lock hint ─────────────────────────────────────── */
+    .caps-hint {
+      font-size: 11px;
+      color: #fcd34d;
+      margin-top: 4px;
+      min-height: 0;
+    }
+
+    /* ─── Accessibility ──────────────────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .card { transform: none !important; }
+      #bg-canvas, .particles { display: none; }
+      .glow-blob { animation: none; }
+    }
+
+    /* ─── Modal de recuperação de senha ──────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: rgba(2, 5, 12, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal-card {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      padding: 1.75rem 1.5rem;
+      background: rgba(10, 14, 28, 0.97);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+      transform: translateY(14px) scale(0.98);
+      transition: transform 0.3s var(--ease-out);
+    }
+
+    .modal-overlay.open .modal-card { transform: translateY(0) scale(1); }
+
+    .modal-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 0.35rem; }
+    .modal-sub { font-size: 12px; color: var(--text-2); margin-bottom: 1.25rem; line-height: 1.5; }
+
+    .modal-x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-2);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .modal-x:hover { background: var(--surface-hover); color: var(--text-1); }
+
+    .modal-field { margin-bottom: 0.9rem; }
+
+    .modal-field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+    }
+
+    .modal-field input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-1);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .modal-field input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .modal-act {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.15s var(--ease-spring);
+    }
+
+    .modal-act:hover { opacity: 0.9; transform: translateY(-1px); }
+    .modal-act:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .modal-msg { min-height: 16px; margin-top: 0.75rem; font-size: 12px; line-height: 1.4; color: #fca5a5; }
+    .modal-msg.ok { color: #5eead4; }
+
+    .modal-steps { display: none; }
+    .modal-steps.on { display: block; }
+
+    .modal-link {
+      width: 100%;
+      margin-top: 0.85rem;
+      border: none;
+      background: none;
+      color: var(--text-3);
+      font-family: inherit;
+      font-size: 11px;
+      text-align: center;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .modal-link:hover { color: var(--text-2); }
+
     /* ─── Responsive ─────────────────────────────────────────── */
     @media (max-width: 480px) {
       .card { width: 92vw; padding: 2rem 1.5rem; border-radius: var(--radius-lg); }
       .glow-blob { width: 300px; height: 300px; }
     }
   </style>
+  <link rel="stylesheet" href="auth-layout.css" />
+  <link rel="stylesheet" href="senior.css" />
 </head>
 <body>
+
+<!-- ─── Controle de tamanho da letra (acessibilidade 60+) ─────── -->
+<div class="a11y-bar" role="group" aria-label="Tamanho da letra">
+  <span class="a11y-label">Tamanho da letra</span>
+  <button type="button" class="a11y-btn" data-font="normal" aria-pressed="true" title="Letra normal">A</button>
+  <button type="button" class="a11y-btn" data-font="grande" aria-pressed="false" title="Letra grande">A+</button>
+  <button type="button" class="a11y-btn" data-font="maior" aria-pressed="false" title="Letra muito grande">A++</button>
+</div>
 
 <!-- ─── Background canvas ────────────────────────────────────── -->
 <canvas id="bg-canvas"></canvas>
@@ -404,9 +624,76 @@
 <!-- ─── Floating particles ───────────────────────────────────── -->
 <div class="particles" id="particles"></div>
 
-<!-- ─── 3-D Scene ─────────────────────────────────────────────── -->
-<div class="scene" id="scene">
-  <div class="card" id="card">
+<!-- ─── Layout dividido ───────────────────────────────────────── -->
+<main class="auth-shell">
+  <aside class="auth-hero">
+    <div class="hero-content">
+      <div class="hero-brand">
+        <div class="hero-logo">
+          <svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg>
+        </div>
+        <div>
+          <div class="hero-name">Italo Maps</div>
+          <div class="hero-sub">Acessível para pessoas 60+</div>
+        </div>
+      </div>
+
+      <div class="hero-tags">
+        <span class="senior-badge">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="M12 7v6"/><path d="m9 21 3-8 3 8"/><path d="M6 11h12"/></svg>
+          60+ Acessível
+        </span>
+        <span class="hero-eyebrow">Feito para a melhor idade</span>
+      </div>
+      <p class="hero-title">Dirigir ficou<br><span>mais simples.</span></p>
+      <p class="hero-text">Letras grandes, botões fáceis de tocar e navegação por voz em português. Um aplicativo pensado para pessoas mais velhas chegarem com segurança.</p>
+
+      <ul class="hero-features">
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg></span>
+          Rotas para carro, a pé ou bicicleta
+        </li>
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+          Alertas colaborativos em tempo real
+        </li>
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></span>
+          Instruções faladas em português
+        </li>
+        <li>
+          <span class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><path d="M9 15s1 1.5 3 1.5 3-1.5 3-1.5"/></svg></span>
+          Assistente IA Italo no mapa
+        </li>
+      </ul>
+    </div>
+
+    <div class="hero-map" aria-hidden="true">
+      <svg viewBox="0 0 440 180">
+        <defs>
+          <linearGradient id="routeGrad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#00d4aa"/>
+            <stop offset="55%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <g opacity=".45" stroke="rgba(148,163,184,.18)" stroke-width="1">
+          <path d="M0 45h440M0 90h440M0 135h440M110 0v180M220 0v180M330 0v180"/>
+        </g>
+        <path d="M28 142 C 92 142, 96 62, 168 62 S 258 150, 318 112 386 46 412 42" fill="none" stroke="url(#routeGrad)" stroke-width="10" stroke-linecap="round" opacity=".14"/>
+        <path class="route-line" d="M28 142 C 92 142, 96 62, 168 62 S 258 150, 318 112 386 46 412 42" fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="28" cy="142" r="7" fill="#00d4aa" stroke="#06080f" stroke-width="3"/>
+        <circle cx="412" cy="42" r="7" fill="#3b82f6" stroke="#06080f" stroke-width="3"/>
+      </svg>
+      <div class="hero-map-chip"><span class="hero-dot"></span>Rota otimizada <strong>18 min</strong></div>
+    </div>
+
+    <div class="hero-foot">Sistema Italo Transportes • Projeto acadêmico</div>
+  </aside>
+
+  <section class="auth-panel">
+    <div class="scene" id="scene">
+      <div class="card" id="card">
 
     <!-- Brand -->
     <div class="brand">
@@ -415,17 +702,26 @@
         <svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a2 2 0 0 1 2-2h9"/><path d="m16 3 2 2-2 2"/></svg>
       </div>
       <div class="brand-label">
-        <div class="brand-name">Sistema de Localização</div>
-        <div class="brand-sub">Italo Transportes</div>
+        <div class="brand-name">Italo Maps Acessível</div>
+        <div class="brand-sub">Para pessoas 60+</div>
       </div>
     </div>
 
     <!-- Heading -->
-    <h1 class="heading">Boas-vindas</h1>
-    <p class="subheading">Acesse sua conta para continuar</p>
+    <h1 class="heading">Bem-vindo(a)!</h1>
+    <p class="subheading">Entre na sua conta. É rápido e fácil.</p>
+
+    <!-- Aviso amigável -->
+    <div class="senior-note">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="M12 7v6"/><path d="m9 21 3-8 3 8"/><path d="M6 11h12"/></svg>
+      <span>Aplicativo feito para pessoas mais velhas: letras grandes, botões maiores e ajuda por voz.</span>
+    </div>
+
+    <!-- Error banner (anunciada por leitores de tela) -->
+    <div class="error-banner" id="error-banner" role="alert" aria-live="assertive"></div>
 
     <!-- Form -->
-    <form id="loginForm" novalidate>
+    <form id="loginForm" novalidate aria-describedby="error-banner">
 
       <!-- Email -->
       <div class="field">
@@ -433,7 +729,7 @@
         <div class="field-wrap">
           <!-- Mail icon -->
           <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
-          <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required />
+          <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required autofocus aria-required="true" />
         </div>
       </div>
 
@@ -443,11 +739,12 @@
         <div class="field-wrap">
           <!-- Lock icon -->
           <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required aria-required="true" />
           <button type="button" class="toggle-pw" id="pwToggle" aria-label="Mostrar senha">
             <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
+        <div class="caps-hint" id="capsHint" aria-live="polite"></div>
       </div>
 
       <!-- Forgot -->
@@ -462,6 +759,15 @@
       </button>
 
     </form>
+
+    <!-- Conta de teste -->
+    <div class="demo-box">
+      <div class="demo-info">
+        <span class="demo-title">Conta de teste</span>
+        <span class="demo-creds">italo@test.com &middot; 123456</span>
+      </div>
+      <button type="button" class="demo-fill" id="demoFill">Preencher</button>
+    </div>
 
     <!-- Divider -->
     <div class="divider">
@@ -494,11 +800,48 @@
       Não tem conta? <a href="cadastro.html">Criar conta</a>
     </div>
 
-  </div><!-- /card -->
-</div><!-- /scene -->
+      </div><!-- /card -->
+    </div><!-- /scene -->
+  </section>
+</main>
+
+<!-- ─── Modal de recuperação de senha ─────────────────────────── -->
+<div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetTitle" aria-describedby="resetSub">
+  <div class="modal-card">
+    <button type="button" class="modal-x" id="resetClose" aria-label="Fechar">&times;</button>
+    <h2 id="resetTitle">Recuperar senha</h2>
+    <p class="modal-sub" id="resetSub">Informe seu e-mail para receber um código de verificação.</p>
+
+    <div class="modal-steps on" id="resetStep1">
+      <div class="modal-field">
+        <label for="resetEmail">E-mail</label>
+        <input type="email" id="resetEmail" placeholder="seu@email.com" autocomplete="email" />
+      </div>
+      <button type="button" class="modal-act" id="resetSendBtn">Enviar código</button>
+      <div class="modal-msg" id="resetMsg1" role="alert" aria-live="polite"></div>
+    </div>
+
+    <div class="modal-steps" id="resetStep2">
+      <div class="modal-field">
+        <label for="resetCode">Código recebido</label>
+        <input type="text" id="resetCode" placeholder="000000" inputmode="numeric" autocomplete="one-time-code" />
+      </div>
+      <div class="modal-field">
+        <label for="resetPass">Nova senha</label>
+        <input type="password" id="resetPass" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+      </div>
+      <button type="button" class="modal-act" id="resetConfirmBtn">Redefinir senha</button>
+      <div class="modal-msg" id="resetMsg2" role="alert" aria-live="polite"></div>
+      <button type="button" class="modal-link" id="resetBack">&larr; Usar outro e-mail</button>
+    </div>
+  </div>
+</div>
 
 
+<script src="config.js"></script>
 <script>
+  const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.backendUrl) || 'http://localhost:8081';
+
   /* ═══════════════════════════════════════════════
      CANVAS — animated grid + floating orbs
   ═══════════════════════════════════════════════ */
@@ -591,6 +934,7 @@
      3-D TILT on mousemove
   ═══════════════════════════════════════════════ */
   (function initTilt() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const card  = document.getElementById('card');
     const scene = document.getElementById('scene');
     const MAX   = 10; // max degrees
@@ -636,6 +980,36 @@
 
 
   /* ═══════════════════════════════════════════════
+     DEMO ACCOUNT — preencher com um clique
+  ═══════════════════════════════════════════════ */
+  document.getElementById('demoFill').addEventListener('click', () => {
+    document.getElementById('email').value = 'italo@test.com';
+    const pw = document.getElementById('password');
+    pw.value = '123456';
+    pw.focus();
+    showStatus('Conta de teste preenchida. Clique em Entrar.', 'info');
+  });
+
+
+  /* ═══════════════════════════════════════════════
+     CAPS LOCK HINT (acessibilidade)
+  ═══════════════════════════════════════════════ */
+  (function initCapsHint() {
+    const input = document.getElementById('password');
+    const hint  = document.getElementById('capsHint');
+
+    function update(e) {
+      const on = e.getModifierState && e.getModifierState('CapsLock');
+      hint.textContent = on ? 'Caps Lock está ativado' : '';
+    }
+
+    input.addEventListener('keydown', update);
+    input.addEventListener('keyup', update);
+    input.addEventListener('blur', () => hint.textContent = '');
+  })();
+
+
+  /* ═══════════════════════════════════════════════
      LOGIN FORM
   ═══════════════════════════════════════════════ */
   document.getElementById('loginForm').addEventListener('submit', async function (e) {
@@ -649,12 +1023,17 @@
       return;
     }
 
+    clearError();
+
     const btn = document.getElementById('submitBtn');
+    const form = document.getElementById('loginForm');
     btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    form.setAttribute('aria-busy', 'true');
     btn.innerHTML = '<span class="spin"></span> Entrando…';
 
     try {
-      const response = await fetch('http://localhost:8081/api/auth/login', {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ email, senha }),
@@ -665,20 +1044,28 @@
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify({ email, nome: data.nome || email.split('@')[0] }));
+        btn.removeAttribute('aria-busy');
+        form.removeAttribute('aria-busy');
         btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none"><polyline points="20 6 9 17 4 12"/></svg> Sucesso!';
         setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
       } else {
-        showError('Credenciais incorretas. Tente novamente.');
+        showError(data && data.error ? data.error : 'Email ou senha incorretos. Tente novamente.');
         resetBtn(btn);
       }
     } catch {
-      showError('Servidor offline. Inicie o backend com: cd backend && mvn spring-boot:run');
-      resetBtn(btn);
+      // Backend offline: entra em modo demonstração para o HTML funcionar sozinho.
+      localStorage.setItem('token', 'demo');
+      localStorage.setItem('user', JSON.stringify({ email, nome: email.split('@')[0] || 'Convidado' }));
+      showStatus('Backend offline — entrando em modo demonstração…', 'info');
+      btn.innerHTML = 'Modo demonstração…';
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     }
   });
 
   function resetBtn(btn) {
     btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    document.getElementById('loginForm').removeAttribute('aria-busy');
     btn.innerHTML = `
       <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round">
         <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
@@ -687,79 +1074,164 @@
       </svg> Entrar`;
   }
 
-  function showError(msg) {
-    const existing = document.getElementById('error-banner');
-    if (existing) existing.remove();
-
-    const banner = document.createElement('div');
-    banner.id = 'error-banner';
-    banner.style.cssText = `
-      background: rgba(239,68,68,0.12);
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: #fca5a5;
-      margin-bottom: 1rem;
-      animation: fade-up 0.3s ease both;
-    `;
+  let errorTimer;
+  function showStatus(msg, type) {
+    const banner = document.getElementById('error-banner');
+    const info = type === 'info';
+    banner.style.background = info ? 'rgba(0,212,170,0.10)' : 'rgba(239,68,68,0.12)';
+    banner.style.borderColor = info ? 'rgba(0,212,170,0.30)' : 'rgba(239,68,68,0.30)';
+    banner.style.color = info ? '#5eead4' : '#fca5a5';
     banner.textContent = msg;
+    banner.classList.add('show');
+    clearTimeout(errorTimer);
+    errorTimer = setTimeout(() => {
+      banner.classList.remove('show');
+      banner.textContent = '';
+    }, 6000);
+  }
 
-    const form = document.getElementById('loginForm');
-    form.insertBefore(banner, form.firstChild);
-    setTimeout(() => banner.remove(), 5000);
+  function showError(msg) { showStatus(msg, 'error'); }
+
+  function clearError() {
+    const banner = document.getElementById('error-banner');
+    clearTimeout(errorTimer);
+    banner.classList.remove('show');
+    banner.textContent = '';
   }
 
 
   /* ═══════════════════════════════════════════════
-     FORGOT PASSWORD
+     FORGOT PASSWORD — modal em 2 etapas
   ═══════════════════════════════════════════════ */
-  document.getElementById('forgotLink').addEventListener('click', async function (e) {
-    e.preventDefault();
+  (function initPasswordReset() {
+    const api        = API_BASE;
+    const modal      = document.getElementById('resetModal');
+    const step1      = document.getElementById('resetStep1');
+    const step2      = document.getElementById('resetStep2');
+    const msg1       = document.getElementById('resetMsg1');
+    const msg2       = document.getElementById('resetMsg2');
+    const emailInput = document.getElementById('resetEmail');
+    const codeInput  = document.getElementById('resetCode');
+    const passInput  = document.getElementById('resetPass');
+    const sendBtn    = document.getElementById('resetSendBtn');
+    const confirmBtn = document.getElementById('resetConfirmBtn');
+    let resetEmail   = '';
 
-    const email = prompt('Informe seu email para redefinir a senha:');
-    if (!email) return;
-
-    try {
-      const r1 = await fetch('http://localhost:8081/api/auth/forgot-password', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email }),
-      });
-      const d1 = await r1.json();
-      if (!r1.ok) throw new Error(d1.error || 'Erro ao gerar código');
-
-      const code = prompt('Digite o código enviado para seu email:');
-      if (!code) return;
-
-      const novaSenha = prompt('Nova senha (mín. 6 caracteres):');
-      if (!novaSenha || novaSenha.length < 6) { alert('A senha deve ter no mínimo 6 caracteres.'); return; }
-
-      const r2 = await fetch('http://localhost:8081/api/auth/reset-password', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email, resetCode: code, novaSenha }),
-      });
-      const d2 = await r2.json();
-      if (!r2.ok) throw new Error(d2.error || 'Erro ao redefinir');
-
-      alert('✅ Senha redefinida com sucesso!');
-      document.getElementById('password').value = novaSenha;
-    } catch (err) {
-      alert('❌ ' + (err.message || 'Erro inesperado'));
+    function setMsg(el, text, ok) {
+      el.textContent = text;
+      el.classList.toggle('ok', !!ok);
     }
-  });
+
+    function openModal() {
+      resetEmail = '';
+      step1.classList.add('on');
+      step2.classList.remove('on');
+      setMsg(msg1, '');
+      setMsg(msg2, '');
+      modal.classList.add('open');
+      setTimeout(() => emailInput.focus(), 120);
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      document.getElementById('forgotLink').focus();
+    }
+
+    document.getElementById('forgotLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal();
+    });
+
+    document.getElementById('resetClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+
+    document.getElementById('resetBack').addEventListener('click', () => {
+      step2.classList.remove('on');
+      step1.classList.add('on');
+      setMsg(msg2, '');
+      emailInput.focus();
+    });
+
+    sendBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setMsg(msg1, 'Digite um e-mail válido.');
+        emailInput.focus();
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Enviando…';
+
+      try {
+        const res  = await fetch(`${api}/api/auth/forgot-password`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Não foi possível enviar o código.');
+
+        resetEmail = email;
+        setMsg(msg1, '');
+        step1.classList.remove('on');
+        step2.classList.add('on');
+        setMsg(msg2, 'Código enviado! Confira seu e-mail.', true);
+        setTimeout(() => codeInput.focus(), 120);
+      } catch (err) {
+        setMsg(msg1, err.message || 'Erro ao enviar o código.');
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Enviar código';
+      }
+    });
+
+    confirmBtn.addEventListener('click', async () => {
+      const code      = codeInput.value.trim();
+      const novaSenha = passInput.value;
+
+      if (!code) { setMsg(msg2, 'Digite o código recebido.'); codeInput.focus(); return; }
+      if (novaSenha.length < 6) { setMsg(msg2, 'A nova senha deve ter no mínimo 6 caracteres.'); passInput.focus(); return; }
+
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Redefinindo…';
+
+      try {
+        const res  = await fetch(`${api}/api/auth/reset-password`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email: resetEmail, resetCode: code, novaSenha }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Código inválido ou expirado.');
+
+        modal.classList.remove('open');
+        document.getElementById('password').value = novaSenha;
+        showStatus('Senha redefinida com sucesso! Você já pode entrar.', 'info');
+        document.getElementById('submitBtn').focus();
+      } catch (err) {
+        setMsg(msg2, err.message || 'Erro ao redefinir a senha.');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Redefinir senha';
+      }
+    });
+  })();
 
 
   /* ═══════════════════════════════════════════════
      SOCIAL BUTTONS (placeholder)
   ═══════════════════════════════════════════════ */
   document.getElementById('googleBtn').addEventListener('click', () => {
-    alert('Integre aqui com Google OAuth 2.0');
+    showStatus('Login com Google estará disponível em breve.', 'info');
   });
   document.getElementById('facebookBtn').addEventListener('click', () => {
-    alert('Integre aqui com Facebook Login SDK');
+    showStatus('Login com Facebook estará disponível em breve.', 'info');
   });
 </script>
+<script src="senior.js"></script>
 </body>
 </html>

@@ -1,3 +1,26 @@
-backend/data/
+# Java / Maven
 backend/target/
+backend/data/
 *.mv.db
+*.mv.db.lock.db
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+*.iml
+out/
+.vscode/
+
+# Sistema operacional
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Dependências
+node_modules/
+
+# Cópias duplicadas locais
+app-waze-faculdade/

@@ -43,6 +43,21 @@ public class AuthController {
     }
 
 
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, String>> changePassword(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody Map<String, String> body) {
+        try {
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                throw new RuntimeException("Token ausente ou inválido");
+            }
+            authService.changePassword(authorization.substring(7), body.get("novaSenha"));
+            return ResponseEntity.ok(Map.of("message", "Senha alterada com sucesso!"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/update-profile")
     public ResponseEntity<Map<String, String>> updateProfile(@RequestBody Map<String, String> update) {
         // TODO: Implement with JWT validation
