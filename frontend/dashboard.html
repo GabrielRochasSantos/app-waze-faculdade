@@ -683,12 +683,28 @@ const TILE_PROVIDERS = [
 ];
 
 const MAP_CFG = (window.APP_CONFIG && window.APP_CONFIG.map) || {};
-if (MAP_CFG.tileUrl) {
-  TILE_PROVIDERS.unshift({
-    url: MAP_CFG.tileUrl,
-    opts: { maxZoom: MAP_CFG.maxZoom || 19, attribution: MAP_CFG.attribution || '' }
-  });
+
+function buildConfiguredProvider() {
+  // MapTiler: monta a URL usando a chave do config.js
+  if (MAP_CFG.provider === 'maptiler' && MAP_CFG.apiKey) {
+    const style = MAP_CFG.style || 'streets-v2-dark';
+    return {
+      url: `https://api.maptiler.com/maps/${style}/{z}/{x}/{y}.png?key=${encodeURIComponent(MAP_CFG.apiKey)}`,
+      opts: { maxZoom: MAP_CFG.maxZoom || 20, attribution: MAP_CFG.attribution || '© MapTiler © OpenStreetMap' }
+    };
+  }
+  // Provedor customizado (URL pronta, com ou sem chave embutida)
+  if (MAP_CFG.tileUrl) {
+    return {
+      url: MAP_CFG.tileUrl,
+      opts: { maxZoom: MAP_CFG.maxZoom || 19, attribution: MAP_CFG.attribution || '' }
+    };
+  }
+  return null;
 }
+
+const configuredProvider = buildConfiguredProvider();
+if (configuredProvider) TILE_PROVIDERS.unshift(configuredProvider);
 
 const fallbackEl = document.getElementById('map-fallback');
 let tileLayer = null;
