@@ -1,92 +1,33 @@
-# 🚗 Sistema de Localização da Italo (Waze Clone)
+Olá, pessoal! 👋
 
-## Conta de teste (já criada automaticamente)
+Meu nome é Gabriel Rocha Santos, estudante de Análise e Desenvolvimento de Sistemas na UniÍtalo.
 
-| Email | Senha |
-| --- | --- |
-| `italo@test.com` | `123456` |
+Estou compartilhando um projeto acadêmico que desenvolvi com o objetivo de colocar em prática meus conhecimentos em programação, desenvolvimento de sistemas e integração de APIs.
 
-> A conta é criada sozinha na primeira execução do backend (e recriada se o banco for apagado).
-> Na tela de login há um botão **Preencher** que coloca esses dados com um clique.
+O projeto consiste em um sistema inspirado no Waze, com funcionalidades de localização, visualização de mapas, pesquisa de rotas e identificação de incidentes.
 
-## Estrutura do projeto
+💻 Sobre o desenvolvimento
 
-```
-app-waze-faculdade/
-├─ backend/    API Spring Boot
-├─ frontend/   páginas HTML, CSS e JS (config.js centraliza backend e mapa)
-├─ scripts/    start-backend.ps1 e test-api.ps1
-├─ README.md
-└─ TODO.md
-```
+Esse projeto foi um desafio importante durante minha jornada na faculdade. Utilizei ferramentas de inteligência artificial como apoio para desenvolver funcionalidades, aprimorar meus conhecimentos e trabalhar com prompts, mas também busquei desenvolver minha própria lógica de programação, entender o funcionamento das APIs e estruturar o código.
 
-## Como Rodar o App (Completo)
+Durante esse processo, pude praticar e evoluir em diferentes áreas do desenvolvimento, desde a construção da interface até a integração com o backend.
 
-### 1. Backend (API Java)
+🛠️ Tecnologias e ferramentas utilizadas:
 
-Requer **JDK 21** (recomendado) e Maven.
+• Java e Spring Boot — desenvolvimento do backend e APIs REST
+• HTML5, CSS3 e JavaScript — construção da interface e funcionalidades
+• Leaflet — mapas interativos e localização
+• OSRM — cálculo e pesquisa de rotas
+• H2 Database — armazenamento de dados
+• JWT e BCrypt — autenticação e segurança
+• Git e GitHub — versionamento e compartilhamento do código
+• Visual Studio Code — desenvolvimento e organização do projeto
+• Inteligência Artificial — apoio ao desenvolvimento, engenharia de prompts e aprendizado
 
-```
-cd backend
-mvn spring-boot:run
-```
+📈 Minha evolução
 
-Ou, na raiz do projeto:
+Nos últimos meses, venho evoluindo bastante na programação, aprimorando minha lógica, minha capacidade de resolver problemas e meu entendimento sobre desenvolvimento de aplicações.
 
-```
-powershell -ExecutionPolicy Bypass -File scripts\start-backend.ps1
-```
+Atualmente, também estou iniciando meus estudos em AWS e computação em nuvem, buscando ampliar meus conhecimentos e me preparar para novos desafios na área de tecnologia.
 
-- Roda em http://localhost:8081
-- Banco H2 persistente em `backend/data/waze.mv.db` (não perde os usuários ao reiniciar)
-- H2 Console: http://localhost:8081/h2-console (JDBC URL: `jdbc:h2:file:./data/waze`, user `sa`, senha vazia)
-- Swagger: http://localhost:8081/swagger-ui.html
-
-### 2. Frontend (HTML/JS)
-
-```
-# Opção 1: abrir direto no navegador
-# Abra frontend/Login.html
-
-# Opção 2: VSCode Live Server (melhor)
-# Right-click frontend/Login.html > Open with Live Server
-```
-
-### 3. Configuração (backend e API de mapa)
-
-- O endereço do backend e a chave da API de mapa ficam em **`frontend/config.js`**.
-- Para usar sua API de mapa, preencha `map.tileUrl` (e `map.apiKey` se o provedor exigir).
-  Exemplos de URL já estão comentados no arquivo.
-- Sem o backend ligado, o login entra em **modo demonstração** e o dashboard abre mesmo assim.
-
-### 4. Testar Login/Registro
-
-1. **Login rápido:** abra `frontend/Login.html`, clique em **Preencher** e depois em **Entrar**.
-2. **Criar conta:** `frontend/cadastro.html` → preencha nome, email e senha (mín. 6 caracteres).
-3. Após entrar, o dashboard abre com o mapa, GPS e busca de rotas.
-
-## Funcionalidades
-
-- **Mapa Leaflet + GPS ao vivo** (com fallback automático entre provedores de tiles)
-- **Rotas reais** via OSRM/OpenStreetMap (carro, a pé e bicicleta)
-- **Reportar acidentes** (clique no mapa ou pela barra lateral)
-- **Perfil**: foto, troca de senha e logout
-- **Acessibilidade**: foco visível, leitores de tela (`aria-live`), atalhos de teclado e suporte a *reduzir movimento*
-- **Voz**: leitura das instruções de navegação (Web Speech API)
-
-## 🐛 Debug
-
-**Login não entra?**
-1. Backend está rodando? `netstat -an | findstr :8081`
-2. F12 → Network → veja a resposta de `POST /api/auth/login` (200/400/500)
-3. Confirme a conta: `italo@test.com` / `123456` (ou crie uma nova em `cadastro.html`)
-
-**Mapa em branco?**
-1. Precisa de internet para carregar os tiles (CartoDB/OpenStreetMap).
-2. O sistema troca de provedor sozinho após 3 erros e mostra um aviso no topo do mapa.
-3. Teste: abra `https://tile.openstreetmap.org/14/6051/9286.png` no navegador.
-
-## Tech Stack
-
-- Backend: Spring Boot 3, H2, JWT, BCrypt
-- Frontend: HTML5, CSS3, Leaflet, OSRM, Web Speech API
+Esse projeto foi uma experiência de aprendizado, experimentação e evolução. Ainda existem melhorias a serem realizadas, mas considero importante compartilhar o que desenvolvi e continuar praticando.
